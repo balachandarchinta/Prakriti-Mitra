@@ -194,6 +194,7 @@ WHERE f.panchayat_id = 'GP-06';`,
 
   // View Router
   switchView(viewName) {
+    if (viewName === "household") viewName = "family";
     document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active"));
     document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
     
@@ -555,11 +556,14 @@ WHERE f.panchayat_id = 'GP-06';`,
 
   // Dashboard Renderer Engine
   renderActiveDashboard(workflow) {
-    const data = this.state[workflow].output;
-    const inputs = this.state[workflow].inputs;
+    const stateKey = workflow === "family" ? "household" : workflow;
+    const data = this.state[stateKey].output;
+    const inputs = this.state[stateKey].inputs;
     if (!data) return;
 
-    if (workflow === "family") {
+    const domKey = workflow === "household" ? "family" : workflow;
+
+    if (domKey === "family") {
       // 1. Gauge Number and fill
       document.getElementById("family-score-number").textContent = data.score;
       document.getElementById("family-score-grade").textContent = data.grade_info.grade;
