@@ -186,7 +186,7 @@ class SurveyAgent {
         { key: "diet", text: "What best describes your household's primary diet?", type: "select", options: ["Non-Vegetarian (Regular)", "Vegetarian", "Vegan"], default: "Vegetarian" },
         { key: "waste", text: "Estimate daily waste generated in your house (in kg):", type: "number", min: 0.1, max: 10, step: 0.1, default: 1.5 },
         { key: "waste_recycled", text: "What percentage of waste is segregated and recycled/composted?", type: "range", min: 0, max: 100, step: 5, default: 20 },
-        { key: "water", text: "Estimate daily household water usage per person (in Liters):", type: "range", min: 10, max: 300, step: 5, default: 135 }
+        { key: "water", text: "Estimate daily household water usage per person (in ml):", type: "range", min: 10000, max: 300000, step: 5000, default: 135000 }
       ],
       event: [
         { key: "event_type", text: "What type of event are you organizing?", type: "select", options: ["Wedding", "Birthday", "Baby Shower", "Corporate Event", "Festival", "Religious Event", "Political Rally", "Other"], default: "Wedding" },
@@ -313,9 +313,9 @@ class CarbonAgent {
       carbonEstimates.waste = (landfillWaste * 30 * factors.waste_landfill) + 
                              (recycledWaste * 30 * factors.waste_recycled);
 
-      // 6. Water
-      const dailyWaterPerCapita = parseFloat(survey_responses.water || 135);
-      carbonEstimates.water = members * dailyWaterPerCapita * 30 * factors.water_liter;
+      // 6. Water (converted from ml to Liters)
+      const dailyWaterPerCapita = parseFloat(survey_responses.water || 135000);
+      carbonEstimates.water = members * (dailyWaterPerCapita / 1000) * 30 * factors.water_liter;
 
       carbonEstimates.total = carbonEstimates.electricity + carbonEstimates.transport + 
                               carbonEstimates.food + carbonEstimates.waste + carbonEstimates.water;
@@ -425,7 +425,7 @@ class SustainabilityAgent {
     if (workflow === "household") {
       const members = parseFloat(survey_responses.members || 1);
       sustainMetrics.carbon_footprint = carbon_estimates.total;
-      sustainMetrics.water_footprint = members * parseFloat(survey_responses.water || 135) * 30;
+      sustainMetrics.water_footprint = members * (parseFloat(survey_responses.water || 135000) / 1000) * 30;
       sustainMetrics.waste_generated = parseFloat(survey_responses.waste || 1.5) * 30;
       sustainMetrics.energy_consumed = parseFloat(survey_responses.electricity || 250);
       sustainMetrics.trees_planted = 0; // standard household lot has no new tree count unless specified
@@ -828,7 +828,7 @@ class GamificationAgent {
     if (workflow === "household") {
       if (score >= 85) badges.push({ id: "b_carbon_cut", name: "Carbon Cutter", icon: "✂️", desc: "Footprint 30% below national average." });
       if (survey_responses.waste_recycled >= 80) badges.push({ id: "b_zero_waste", name: "Zero Waste Hero", icon: "♻️", desc: "Recycles over 80% of waste." });
-      if (survey_responses.water <= 80) badges.push({ id: "b_water_saver", name: "Water Whisperer", icon: "💧", desc: "Maintains minimal water consumption." });
+      if (survey_responses.water <= 80000) badges.push({ id: "b_water_saver", name: "Water Whisperer", icon: "💧", desc: "Maintains minimal water consumption." });
     } else if (workflow === "event") {
       if (score >= 80) badges.push({ id: "b_gold_event", name: "Gold Event Cert", icon: "🏆", desc: "Event achieved high environmental metrics." });
       if (survey_responses.decor_type === "Eco-friendly/Reusable") badges.push({ id: "b_nature_decor", name: "Bio-Decor Pioneer", icon: "🌸", desc: "100% biodegradable event venue styling." });
@@ -857,7 +857,7 @@ class GamificationAgent {
 }
 
 // Orchestrator Engine to run the entire pipeline sequentially
-async function executeAgentPipeline(userInputText, surveyAnswers, geminiKey = null) {
+async function executeAgentPipeline(userInputText, surveyAnswers, geminiKey = null, preResolvedWorkflow = null) {
   console.log("=== STARTING AGENT PIPELINE EXECUTION ===");
   const logs = [];
   const addLog = (stage, message, data = null) => {
@@ -866,9 +866,20 @@ async function executeAgentPipeline(userInputText, surveyAnswers, geminiKey = nu
 
   try {
     // Stage 0: Route Input
-    const router = new RouterAgent(geminiKey);
-    const routeResult = await router.run(userInputText);
-    addLog("Stage 0: Carbon Identity Router Agent", `Successfully routed to workflow: '${routeResult.workflow}' (Confidence: ${routeResult.confidence_score})`, routeResult);
+    let routeResult;
+    if (preResolvedWorkflow) {
+      routeResult = {
+        workflow: preResolvedWorkflow,
+        confidence_score: 1.0,
+        extracted_metrics: {},
+        detected_language: "en"
+      };
+      addLog("Stage 0: Carbon Identity Router Agent (Pre-Resolved)", `Using active workflow: '${preResolvedWorkflow}'`, routeResult);
+    } else {
+      const router = new RouterAgent(geminiKey);
+      routeResult = await router.run(userInputText);
+      addLog("Stage 0: Carbon Identity Router Agent", `Successfully routed to workflow: '${routeResult.workflow}' (Confidence: ${routeResult.confidence_score})`, routeResult);
+    }
 
     if (routeResult.workflow === "unsupported") {
       throw new Error("Input could not be routed to a valid sustainability workflow. Set to unsupported.");

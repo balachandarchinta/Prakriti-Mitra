@@ -12,7 +12,7 @@ class PrakritiMitraApp {
     // Global State for Workflows (initialized with mockup baselines)
     this.state = {
       household: {
-        inputs: { members: 4, electricity: 250, fuel_type: "LPG", fuel_qty: 1, transport_type: "Petrol Car", transport_kms: 150, diet: "Vegetarian", waste: 1.5, waste_recycled: 20, water: 135 },
+        inputs: { members: 4, electricity: 250, fuel_type: "LPG", fuel_qty: 1, transport_type: "Petrol Car", transport_kms: 150, diet: "Vegetarian", waste: 1.5, waste_recycled: 20, water: 135000 },
         output: {
           score: 78,
           grade_info: { grade: "Green Family", color: "#2ecc71", badgeColor: "#a3e4d7", accentColor: "#27ae60", desc: "Eco-conscious. Active sustainable choices, low carbon footprint." },
@@ -391,7 +391,8 @@ WHERE f.panchayat_id = 'GP-06';`,
     }
 
     // Launch Survey Agent
-    this.startSurvey(routeResult.workflow, routeResult.extracted_metrics);
+    const mergedMetrics = { ...geospatialPreseeds, ...routeResult.extracted_metrics };
+    this.startSurvey(routeResult.workflow, mergedMetrics);
   }
 
   // Toggle Trace log accordion
@@ -518,7 +519,7 @@ WHERE f.panchayat_id = 'GP-06';`,
     logsContainer.innerHTML += `<div style="color: #666; padding-top:0.5rem;">-- Survey complete. Initiating multi-agent execution pipeline...</div>`;
 
     // Trigger full backend sequence
-    const result = await window.executeAgentPipeline(rawInputText, this.surveyResponses, this.apiKey);
+    const result = await window.executeAgentPipeline(rawInputText, this.surveyResponses, this.apiKey, this.currentSurveyWorkflow);
 
     if (!result.success) {
       logsContainer.innerHTML += `<div style="color: var(--color-red); padding-top:0.5rem;">Pipeline Failed: ${result.error}</div>`;
@@ -581,7 +582,7 @@ WHERE f.panchayat_id = 'GP-06';`,
         { name: "Transport", val: Math.round(metrics.carbon_footprint * 0.4), max: 300, unit: "kg CO₂", icon: "🚗" },
         { name: "Food", val: Math.round(metrics.carbon_footprint * 0.2), max: 200, unit: "kg CO₂", icon: "🍽" },
         { name: "Waste", val: Math.round(metrics.waste_generated), max: 60, unit: "kg", icon: "♻" },
-        { name: "Water", val: Math.round(metrics.water_footprint / inputs.members / 30), max: 200, unit: "L/day", icon: "💧" }
+        { name: "Water", val: Math.round(metrics.water_footprint / inputs.members / 30 * 1000), max: 200000, unit: "ml/day", icon: "💧" }
       ];
 
       categories.forEach(c => {
