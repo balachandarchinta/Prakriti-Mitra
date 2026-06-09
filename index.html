@@ -36,6 +36,63 @@
 
     <!-- LANDING VIEW -->
     <section id="view-landing" class="view-section active">
+      
+      <!-- Cinematic Launch Film Player Banner -->
+      <div class="glass-card video-banner-card" style="margin-bottom: 1.5rem; padding: 0; overflow: hidden; position: relative; height: 260px; display: flex; align-items: center; justify-content: center; background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('prakriti_launch_film.png'); background-size: cover; background-position: center; border-color: var(--color-lightgreen);">
+        <div class="video-banner-content" id="video-banner-intro" style="text-align: center; padding: 1.5rem; z-index: 20;">
+          <span style="font-size: 0.75rem; letter-spacing: 0.25em; color: var(--color-lightgreen); font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">Prakriti Mitra Cinematic Trailer</span>
+          <h2 style="font-size: 1.8rem; margin-bottom: 1rem; font-family: 'Outfit'; font-weight: 800;">Watch the Platform Launch Film</h2>
+          <button class="chat-bubble" style="margin: 0 auto; position: static; box-shadow: 0 0 20px rgba(46,204,113,0.4); animation: pulse 2.5s infinite;" onclick="app.playLaunchFilm()">
+            <span style="font-size: 1.4rem; margin-left: 4px; color: #fff;">▶</span>
+          </button>
+        </div>
+        
+        <!-- Cinematic Player Overlay -->
+        <div class="cinema-player-overlay" id="cinema-player" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #020905; z-index: 50; flex-direction: column; justify-content: space-between; padding: 1.25rem; animation: fadeIn 0.3s forwards;">
+          <!-- Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; z-index: 60;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span style="color: var(--color-lightgreen); font-size: 1.1rem;">🌳</span>
+              <strong style="font-size: 0.8rem; letter-spacing: 0.08em; font-family: 'Outfit';">PRAKRITI MITRA • OFFICIAL LAUNCH FILM</strong>
+            </div>
+            <button onclick="app.stopLaunchFilm()" style="background: transparent; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1;">×</button>
+          </div>
+          
+          <!-- Screen Scene Content -->
+          <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 1.5rem; z-index: 60;">
+            <div id="cinema-visual-hint" style="font-family: 'Outfit'; font-size: 1.25rem; font-weight: 600; color: #a3e4d7; margin-bottom: 0.25rem; text-shadow: 0 2px 10px rgba(0,0,0,0.9); transition: all 0.3s;">
+              Sunrise over Indian hills and river steps
+            </div>
+            <div id="cinema-camera-hint" style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-bottom: 0.75rem;">
+              Drone fly-over rising over step ridge
+            </div>
+            <div id="cinema-subtitles" style="font-size: 0.95rem; color: #fff; background: rgba(0,0,0,0.8); padding: 0.4rem 1.2rem; border-radius: 6px; max-width: 85%; line-height: 1.3; border-bottom: 2px solid var(--color-lightgreen); font-style: normal; text-shadow: 0 1px 3px #000;">
+              "Nature has always shared its rhythm with us. Silent. Balanced. Perfect."
+            </div>
+          </div>
+          
+          <!-- Controls -->
+          <div style="z-index: 60; display: flex; flex-direction: column; gap: 0.25rem;">
+            <!-- Scrubber -->
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 0.75rem; font-family: monospace;" id="cinema-time">0:00</span>
+              <div style="flex-grow: 1; height: 3px; background: rgba(255,255,255,0.15); border-radius: 1.5px; overflow: hidden; position: relative;">
+                <div id="cinema-progress" style="height: 100%; width: 0%; background: var(--color-lightgreen); transition: width 0.1s linear;"></div>
+              </div>
+              <span style="font-size: 0.75rem; font-family: monospace;">1:00</span>
+            </div>
+            <!-- Action bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted);">
+              <span>🔊 SOUND ACTIVE (Synth Beats)</span>
+              <span id="cinema-audio-hint" style="font-family: monospace; color: var(--color-yellow);">Cello humming / birds chirping</span>
+            </div>
+          </div>
+          
+          <!-- Cinema Background Visual Visualizers -->
+          <div id="cinema-bg" style="position: absolute; top:0; left:0; width:100%; height:100%; background-size: cover; background-position: center; opacity: 0.25; filter: blur(2px); transition: background-image 1s ease-in-out; z-index: 10; background-color: #030f06;"></div>
+        </div>
+      </div>
+
       <div class="landing-grid">
         <div class="hero-box glass-card">
           <h2>Friend of Nature</h2>
