@@ -63,7 +63,7 @@ ACCESSIBILITY & INCLUSION MANDATE:
 STRICT SYSTEM OUTPUT SCHEMA:
 You must output a single, flat JSON object matching this structure. Do not include any markdown fences, conversational filler, or introductory text.
 {
-  "workflow": "string (MUST be exactly one of: 'household', 'event', 'children', 'unsupported')",
+  "workflow": "string (MUST be exactly one of: 'household', 'event', 'children', 'village', 'unsupported')",
   "confidence_score": "float (between 0.00 and 1.00 representing routing certainty)",
   "extracted_metrics": {
     "key_name": "numeric value only (e.g., 'kwh': 450, 'miles': 12)"
@@ -74,7 +74,8 @@ You must output a single, flat JSON object matching this structure. Do not inclu
 CLASSIFICATION TAXONOMY:
 - 'household': Everyday home utility consumption, bills, appliance usage, or residential waste management.
 - 'event': Organized, temporary gatherings (conferences, sports tournaments, parties, weddings) involving logistics, catering, or commercial venue spaces.
-- 'children': Gamified tasks, school-level environmental logs, habit-tracking (e.g., "turned off bedroom lights", "cleaned plate"), or simplified green actions.`;
+- 'children': Gamified tasks, school-level environmental logs, habit-tracking (e.g., "turned off bedroom lights", "cleaned plate"), or simplified green actions.
+- 'village': Collective rural panchayat metrics, agricultural assessments, water bodies, solar street lighting, or village street ranks.`;
 
     if (this.apiKey) {
       try {
@@ -108,31 +109,37 @@ CLASSIFICATION TAXONOMY:
     const householdKeywords = ["kwh", "electricity", "bill", "power", "monthly", "gas", "utility", "household", "family", "appliances", "fridge", "ac ", "cooler", "lpg", "cylinder", "home", "rent", "water bill", "बिजली", "किराया"];
     const eventKeywords = ["wedding", "marriage", "guests", "venue", "catering", "party", "conference", "ceremony", "organizer", "generator", "gathering", "birthday", "shower", "decoration", "decor", "political rally", "शादी", "उत्सव", "मेहमान"];
     const childrenKeywords = ["school", "child", "student", "kid", "homework", "teacher", "bicycle", "cycle", "walk", "planting", "bottle", "plate", "lunch", "recycling bin", "classroom", "grade", "age 1", "अंक", "स्कूल", "साइकिल"];
+    const villageKeywords = ["village", "panchayat", "families", "gram", "ward", "district", "communal", "community", "panchayatgp-06", "गांव", "पंचायत"];
 
-    let hhScore = 0, evScore = 0, chScore = 0;
+    let hhScore = 0, evScore = 0, chScore = 0, viScore = 0;
     householdKeywords.forEach(k => { if (text.includes(k)) hhScore++; });
     eventKeywords.forEach(k => { if (text.includes(k)) evScore++; });
     childrenKeywords.forEach(k => { if (text.includes(k)) chScore++; });
+    villageKeywords.forEach(k => { if (text.includes(k)) viScore++; });
 
     // Multiplier for numbers near keywords
     const numRegex = /(\d+(?:\.\d+)?)/g;
     const hasNumbers = numRegex.test(text);
 
-    if (hhScore > evScore && hhScore > chScore) {
+    if (hhScore > evScore && hhScore > chScore && hhScore > viScore) {
       workflow = "household";
       confidence = Math.min(0.95, 0.6 + (hhScore * 0.08));
-    } else if (evScore > hhScore && evScore > chScore) {
+    } else if (evScore > hhScore && evScore > chScore && evScore > viScore) {
       workflow = "event";
       confidence = Math.min(0.95, 0.6 + (evScore * 0.08));
-    } else if (chScore > hhScore && chScore > evScore) {
+    } else if (chScore > hhScore && chScore > evScore && chScore > viScore) {
       workflow = "children";
       confidence = Math.min(0.95, 0.6 + (chScore * 0.08));
+    } else if (viScore > hhScore && viScore > evScore && viScore > chScore) {
+      workflow = "village";
+      confidence = Math.min(0.95, 0.6 + (viScore * 0.08));
     } else {
       // Tie breaker / overall relevance
-      if (hhScore > 0 || evScore > 0 || chScore > 0) {
+      if (hhScore > 0 || evScore > 0 || chScore > 0 || viScore > 0) {
         if (hhScore > 0) workflow = "household";
         else if (evScore > 0) workflow = "event";
-        else workflow = "children";
+        else if (chScore > 0) workflow = "children";
+        else workflow = "village";
         confidence = 0.55;
       } else {
         workflow = "unsupported";
@@ -158,6 +165,9 @@ CLASSIFICATION TAXONOMY:
       if (workflow === "household") extracted_metrics.transport_kms = parseFloat(kmMatch[1]);
       else if (workflow === "event") extracted_metrics.travel_kms = parseFloat(kmMatch[1]);
     }
+
+    const familyCountMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:families|households|घर)/i);
+    if (familyCountMatch) extracted_metrics.families = parseFloat(familyCountMatch[1]);
 
     console.log("[Stage 0: Router Agent] Classified by Fallback Engine:", { workflow, confidence_score: confidence, extracted_metrics, detected_language });
     return {
@@ -893,6 +903,7 @@ async function executeAgentPipeline(userInputText, surveyAnswers, geminiKey = nu
       if (routeResult.extracted_metrics.cycling_days) finalSurveyInputs.cycle_days = routeResult.extracted_metrics.cycling_days;
       if (routeResult.extracted_metrics.trees_planted) finalSurveyInputs.trees_planted = routeResult.extracted_metrics.trees_planted;
       if (routeResult.extracted_metrics.transport_kms) finalSurveyInputs.transport_kms = routeResult.extracted_metrics.transport_kms;
+      if (routeResult.extracted_metrics.families) finalSurveyInputs.families = routeResult.extracted_metrics.families;
     }
 
     // Stage 1: Survey Collection
