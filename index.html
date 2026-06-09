@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prakriti Mitra - Carbon Intelligence Platform</title>
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header>
+    <div class="brand" onclick="app.switchView('landing')">
+      <span class="brand-icon">🌳</span>
+      <h1>PRAKRITI MITRA</h1>
+    </div>
+    <nav class="nav-links">
+      <button class="nav-btn active" id="nav-landing" onclick="app.switchView('landing')">Home</button>
+      <button class="nav-btn" id="nav-family" onclick="app.switchView('family')">Family</button>
+      <button class="nav-btn" id="nav-event" onclick="app.switchView('event')">Event</button>
+      <button class="nav-btn" id="nav-children" onclick="app.switchView('children')">Children</button>
+      <button class="nav-btn" id="nav-village" onclick="app.switchView('village')">Village</button>
+      <button class="nav-btn" id="nav-sandbox" onclick="app.switchView('sandbox')">Developer Sandbox</button>
+    </nav>
+    <button class="gear-icon" onclick="app.openSettings()" title="API Settings">⚙️</button>
+  </header>
+
+  <!-- Main Content Body -->
+  <main>
+
+    <!-- LANDING VIEW -->
+    <section id="view-landing" class="view-section active">
+      <div class="landing-grid">
+        <div class="hero-box glass-card">
+          <h2>Friend of Nature</h2>
+          <p>Guide for Sustainable Living. Track, score, and reduce your environmental footprint using advanced spatial analytics and structured multi-agent workflows.</p>
+          <button class="btn" onclick="app.switchView('sandbox')">
+            <span>Check My Green Score</span> 🚀
+          </button>
+          
+          <div class="dashboard-showcase">
+            <div class="showcase-card glass-card" onclick="app.switchView('family')">
+              <span class="showcase-icon">🏠</span>
+              <h3>Family Dashboard</h3>
+              <p>Utility bills, transport & water meters.</p>
+            </div>
+            <div class="showcase-card glass-card" onclick="app.switchView('event')">
+              <span class="showcase-icon">🎉</span>
+              <h3>Event Dashboard</h3>
+              <p>Catering, travel & materials impact.</p>
+            </div>
+            <div class="showcase-card glass-card" onclick="app.switchView('children')">
+              <span class="showcase-icon">👧</span>
+              <h3>Children Dashboard</h3>
+              <p>Gamified habits & student badges.</p>
+            </div>
+            <div class="showcase-card glass-card" onclick="app.switchView('village')">
+              <span class="showcase-icon">🌾</span>
+              <h3>Village Panchayat</h3>
+              <p>Tree canopy, water bodies & ward ranks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendations-box glass-card">
+          <h3>Top Recommendations</h3>
+          <div class="rec-list">
+            <div class="rec-item">
+              <span class="rec-check">✓</span>
+              <div>
+                <strong>Reduce kitchen food waste</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Saves methane landfill emissions.</p>
+              </div>
+            </div>
+            <div class="rec-item">
+              <span class="rec-check">✓</span>
+              <div>
+                <strong>Carpool or use transit twice weekly</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Minimizes petroleum emissions.</p>
+              </div>
+            </div>
+            <div class="rec-item">
+              <span class="rec-check">✓</span>
+              <div>
+                <strong>Plant native trees this monsoon</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Offsets active electrical grids.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impact Today Row -->
+      <div class="impact-summary-row">
+        <div class="stat-item glass-card">
+          <span class="stat-icon">🌿</span>
+          <div>
+            <div class="stat-val" id="global-score">78</div>
+            <div class="stat-label">Green Score</div>
+          </div>
+        </div>
+        <div class="stat-item glass-card">
+          <span class="stat-icon">🚲</span>
+          <div>
+            <div class="stat-val" id="global-co2">142 kg</div>
+            <div class="stat-label">CO₂ Saved</div>
+          </div>
+        </div>
+        <div class="stat-item glass-card">
+          <span class="stat-icon">🌳</span>
+          <div>
+            <div class="stat-val" id="global-trees">8</div>
+            <div class="stat-label">Trees Equivalent</div>
+          </div>
+        </div>
+        <div class="stat-item glass-card">
+          <span class="stat-icon">💧</span>
+          <div>
+            <div class="stat-val" id="global-water">4,500 L</div>
+            <div class="stat-label">Water Saved</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVELOPER SANDBOX VIEW -->
+    <section id="view-sandbox" class="view-section">
+      <div class="sandbox-split">
+        <!-- Map and Spatial Side -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="glass-card map-container-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="font-family: 'Outfit'; font-size: 1.1rem;">🛰️ Sentinel Spatial Analytics</h3>
+              <div class="map-controls">
+                <button class="map-btn active" id="map-layer-std" onclick="app.setMapLayer('standard')">Standard</button>
+                <button class="map-btn" id="map-layer-canopy" onclick="app.setMapLayer('canopy')">🌳 Canopy</button>
+                <button class="map-btn" id="map-layer-water" onclick="app.setMapLayer('water')">💧 Water</button>
+                <button class="map-btn" id="map-layer-landuse" onclick="app.setMapLayer('landuse')">🌾 Land Use</button>
+              </div>
+            </div>
+            <div id="map"></div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: -0.5rem;">
+              Click on a highlighted site boundary to run spatial calculations and trigger the agent pipeline!
+            </p>
+          </div>
+
+          <div class="sql-console">
+            <div class="sql-header">
+              <span class="sql-title">AlloyDB Omni (PostgreSQL + PostGIS)</span>
+              <span class="sql-status"></span>
+            </div>
+            <div class="sql-body" id="sql-console-body">
+              <div>-- PostgreSQL PostGIS Spatial Engine initialized.</div>
+              <div>-- Ready for location-aware queries.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inputs and Router Side -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="glass-card">
+            <h3>Stage 0: Router Agent Sandbox</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              Paste natural language data in any language or select a coordinate boundary above.
+            </p>
+            <textarea id="router-text-input" placeholder="e.g. Electricity bill is 450 kWh. We travel 100 kms in a petrol car." 
+                      style="width: 100%; height: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-light); border-radius: 8px; color: #fff; padding: 0.5rem; font-family: inherit; font-size: 0.9rem; resize: none; outline: none; margin-bottom: 0.5rem;"></textarea>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+              <span class="chat-chip" onclick="app.fillSandboxChip('household')">House: 350 kWh + 120km car</span>
+              <span class="chat-chip" onclick="app.fillSandboxChip('event')">Wedding: 200 guests, 2 days</span>
+              <span class="chat-chip" onclick="app.fillSandboxChip('children')">Student: cycle 15 days, 3 trees</span>
+              <span class="chat-chip" onclick="app.fillSandboxChip('hindi')">बिजली बिल 250 यूनिट और 5 पेड़ लगाए</span>
+            </div>
+
+            <button class="btn" onclick="app.runRoutingStage()" style="width: 100%; justify-content: center;">
+              <span>Execute LLM Router</span> 🤖
+            </button>
+          </div>
+
+          <!-- Dynamic Survey Container -->
+          <div class="glass-card" id="survey-container-card" style="display: none;">
+            <div class="survey-progress-container">
+              <div class="survey-progress-bar-outer">
+                <div class="survey-progress-bar-inner" id="survey-progress"></div>
+              </div>
+              <span class="survey-progress-text" id="survey-progress-text">Q 1/10</span>
+            </div>
+            
+            <div class="survey-card-container" id="survey-cards-wrapper">
+              <!-- Cards dynamically inserted here -->
+            </div>
+
+            <div class="survey-navigation">
+              <button class="btn btn-secondary" id="survey-btn-prev" onclick="app.prevSurveyQuestion()" disabled>Back</button>
+              <button class="btn" id="survey-btn-next" onclick="app.nextSurveyQuestion()">Next ➔</button>
+            </div>
+          </div>
+
+          <!-- Exec Trace Panel -->
+          <div class="glass-card">
+            <h3>Agent Orchestration Trace</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Sequential execution logs of the 9 backend agents.</p>
+            <div class="pipeline-logs" id="pipeline-trace-logs">
+              <div style="color: var(--text-muted);">No pipeline running. Submit raw input or finish a survey to initiate trace.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAMILY DASHBOARD -->
+    <section id="view-family" class="view-section">
+      <div class="dashboard-layout">
+        <!-- Score & Actions Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card score-card-gauge" style="position: relative;">
+            <h3 style="margin-bottom: 1rem;">🏠 Prakriti Family Score</h3>
+            
+            <div style="position: relative; width: 200px; height: 200px;">
+              <svg class="gauge-svg">
+                <circle class="gauge-bg" cx="100" cy="100" r="90" />
+                <circle class="gauge-fill" id="family-gauge-fill" cx="100" cy="100" r="90" />
+              </svg>
+              <div class="gauge-center-text">
+                <span class="gauge-number" id="family-score-number">78</span>
+                <span class="gauge-grade" id="family-score-grade">Green Family</span>
+              </div>
+            </div>
+            
+            <p id="family-story-text" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1.5rem; padding: 0 0.5rem; text-align: center;">
+              Calculating environmental narrative...
+            </p>
+          </div>
+
+          <div class="glass-card">
+            <h3>Improve Family Score</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Select action items to dynamically simulate improvements in the dashboard.</p>
+            <div id="family-improve-list">
+              <!-- Recommendations checked here will immediately adjust score -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card">
+            <h3>Resource Impact Breakdown</h3>
+            <div style="margin-top: 1rem;" id="family-categories-list">
+              <!-- Category bars: Electricity, Transport, Food, Waste, Water -->
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Carbon Emission Composition</h3>
+            <div class="chart-box" id="family-chart-box">
+              <!-- SVG Donut Chart rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENT DASHBOARD -->
+    <section id="view-event" class="view-section">
+      <div class="dashboard-layout">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card score-card-gauge" style="position: relative;">
+            <h3 id="event-report-title">💍 Wedding Sustainability Report</h3>
+            
+            <div style="position: relative; width: 200px; height: 200px; margin: 1rem 0;">
+              <svg class="gauge-svg">
+                <circle class="gauge-bg" cx="100" cy="100" r="90" />
+                <circle class="gauge-fill" id="event-gauge-fill" cx="100" cy="100" r="90" />
+              </svg>
+              <div class="gauge-center-text">
+                <span class="gauge-number" id="event-score-number">65</span>
+                <span class="gauge-grade" id="event-score-grade">Silver Event</span>
+              </div>
+            </div>
+
+            <p id="event-story-text" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">
+              Calculations trace...
+            </p>
+          </div>
+
+          <div class="glass-card" style="text-align: center;">
+            <h3>Download Green Event Certificate</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Verify sustainability achievements and showcase to event attendees.
+            </p>
+            <div class="certificate-preview-box">
+              <span style="font-size: 3.5rem; display: block; margin-bottom: 0.5rem;">📜</span>
+              <strong>Sustainability Compliance Certificate</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Prakriti Event Grade: Silver</p>
+              <button class="btn" style="margin: 0 auto;" onclick="app.showCertificate()">View Certificate</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card">
+            <h3>Total Environmental Impact</h3>
+            <div style="text-align: center; padding: 1.5rem 0;">
+              <div class="stat-val" id="event-total-co2" style="font-size: 3rem; color: var(--color-orange);">3.4 Tons CO₂</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Equivalent to:</p>
+              <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+                <div>
+                  <span style="font-size: 2rem;">🚗</span>
+                  <div style="font-weight: bold;" id="event-analogy-car">13,500 km</div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Car Travel</span>
+                </div>
+                <div>
+                  <span style="font-size: 2rem;">🌳</span>
+                  <div style="font-weight: bold;" id="event-analogy-trees">150 Trees</div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Offsets (1 Yr)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Impact Breakdown & Savings</h3>
+            <div id="event-categories-list" style="margin-top: 1rem;">
+              <!-- Travel, Food, Energy, Material bars -->
+            </div>
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+              <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Potential Emission Offsets</h4>
+              <div id="event-savings-list">
+                <!-- Potential recommendations -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHILDREN DASHBOARD -->
+    <section id="view-children" class="view-section">
+      <div class="dashboard-layout">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card" style="display: flex; align-items: center; gap: 1.5rem;">
+            <span style="font-size: 4.5rem; border-radius: 50%; background: rgba(255,255,255,0.05); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-lightgreen);">👧</span>
+            <div>
+              <span class="gauge-grade" style="color: var(--color-lightgreen); font-size: 0.8rem; font-weight: 800;">🌱 GREEN CHAMPION</span>
+              <h2 id="children-profile-name" style="font-size: 1.8rem; font-weight: 800; line-height: 1.1;">Ananya</h2>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Age: <span id="children-profile-age">11</span> | Rank: <span id="children-profile-rank">#4</span></p>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                <span style="font-weight: bold; color: var(--color-lightgreen);" id="children-score-badge">92 pts</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Level 3 Guardian</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Achievements Cabinet</h3>
+            <div class="badge-cabinet" id="children-badges-grid">
+              <!-- Achievements listed: Climate Champion, Bicycle Hero, Tree Guardian, etc. -->
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Active Environmental Quests</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Check completed tasks to claim sustainability XP points!</p>
+            <div id="children-challenges-list">
+              <!-- list of challenges -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card">
+            <h3>Weekly & Monthly Contributions</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <div class="glass-card" style="background: rgba(0,0,0,0.2); padding: 1rem;">
+                <span style="font-size: 1.5rem;">🚲</span>
+                <div style="font-size: 1.4rem; font-weight: bold;" id="child-stat-cycle">18 Days</div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Active Commuting</span>
+              </div>
+              <div class="glass-card" style="background: rgba(0,0,0,0.2); padding: 1rem;">
+                <span style="font-size: 1.5rem;">🌳</span>
+                <div style="font-size: 1.4rem; font-weight: bold;" id="child-stat-trees">3 Planted</div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Saplings Watered</span>
+              </div>
+              <div class="glass-card" style="background: rgba(0,0,0,0.2); padding: 1rem; grid-column: span 2;">
+                <span style="font-size: 1.5rem;">🍽️</span>
+                <div style="font-size: 1.4rem; font-weight: bold;" id="child-stat-meals">14 Meals Saved</div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Zero Food Waste Streak</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="position: relative;">
+            <h3>Carbon Offset Breakdown</h3>
+            <div style="text-align: center; padding: 1.5rem 0;">
+              <div class="stat-val" style="font-size: 3rem; color: var(--color-lightgreen);" id="children-total-saved">128 kg CO₂</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Saved this month (Equivalent to <span id="children-analogy-trees">6</span> trees planting offsets)</p>
+            </div>
+            <p id="children-story-text" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+              Story content loading...
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VILLAGE DASHBOARD -->
+    <section id="view-village" class="view-section">
+      <div class="dashboard-layout">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card score-card-gauge">
+            <h3 id="village-report-title">🌾 Shankarpally Gram Dashboard</h3>
+            
+            <div style="position: relative; width: 200px; height: 200px; margin: 1rem 0;">
+              <svg class="gauge-svg">
+                <circle class="gauge-bg" cx="100" cy="100" r="90" />
+                <circle class="gauge-fill" id="village-gauge-fill" cx="100" cy="100" r="90" />
+              </svg>
+              <div class="gauge-center-text">
+                <span class="gauge-number" id="village-score-number">81</span>
+                <span class="gauge-grade" id="village-score-grade">District Rank #4</span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; text-align: center; margin-top: 1rem;">
+              <div style="background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px;">
+                <div style="font-size: 1.2rem; font-weight: bold;" id="village-stat-assessed">1,245</div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Families Logged</span>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px;">
+                <div style="font-size: 1.2rem; font-weight: bold;" id="village-stat-green">863</div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Green Families</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Panchayat Core Index Ratings</h3>
+            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;" id="village-stars-list">
+              <!-- Water, Waste, Trees, Renewable indices -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="glass-card">
+            <h3>Top Performing Wards</h3>
+            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="challenge-item">
+                <div class="challenge-info">
+                  <div class="challenge-title">Ward 6 (Vaikunth Nagar)</div>
+                  <div class="challenge-desc">Tree coverage index: 94% | Waste Segregation: 100%</div>
+                </div>
+                <div style="font-weight: 800; color: var(--color-lightgreen);">91 pts</div>
+              </div>
+              <div class="challenge-item">
+                <div class="challenge-info">
+                  <div class="challenge-title">Ward 2 (Panchayat Main)</div>
+                  <div class="challenge-desc">Solar streetlighting: 80% | Compost coverage: 75%</div>
+                </div>
+                <div style="font-weight: 800; color: var(--color-lightgreen);">84 pts</div>
+              </div>
+              <div class="challenge-item">
+                <div class="challenge-info">
+                  <div class="challenge-title">Ward 4 (Water Gate Street)</div>
+                  <div class="challenge-desc">Rainwater harvesting index: 95% | Segregation: 65%</div>
+                </div>
+                <div style="font-weight: 800; color: var(--color-yellow);">76 pts</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Panchayat Environmental Narrative</h3>
+            <p id="village-story-text" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+              Village storytelling description loading...
+            </p>
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+              <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Active Community Challenges</h4>
+              <div id="village-improve-list">
+                <!-- Village improvements -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Chatbot widget -->
+  <div class="chat-widget">
+    <div class="chat-window" id="prakriti-chat-window">
+      <div class="chat-header">
+        <h3><span>🕉️</span> Ask Prakriti</h3>
+        <button class="chat-close" onclick="app.toggleChat()">×</button>
+      </div>
+      <div class="chat-messages" id="prakriti-chat-messages">
+        <div class="msg msg-bot">
+          Hello! I am your Prakriti Mitra sustainability assistant. How can I help you understand or improve your scores today?
+        </div>
+      </div>
+      <div class="chat-chips">
+        <span class="chat-chip" onclick="app.sendQuickChat('How can I improve my family score?')">Improve score?</span>
+        <span class="chat-chip" onclick="app.sendQuickChat('Why is my transport footprint high?')">Transport impact?</span>
+        <span class="chat-chip" onclick="app.sendQuickChat('How is the event score calculated?')">Event score?</span>
+        <span class="chat-chip" onclick="app.sendQuickChat('Suggest village water projects.')">Village water?</span>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="prakriti-chat-input" placeholder="Type a message..." 
+               onkeypress="if(event.key === 'Enter') app.sendChatMessage()">
+        <button class="chat-send-btn" onclick="app.sendChatMessage()">➔</button>
+      </div>
+    </div>
+    <div class="chat-bubble" onclick="app.toggleChat()" title="Ask Prakriti">🕉️</div>
+  </div>
+
+  <!-- API Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content glass-card">
+      <button class="modal-close" onclick="app.closeSettings()">×</button>
+      <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem;">
+        ⚙️ Gemini API Configuration
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Paste your Google Gemini API Key below. This key is used client-side for Stage 0 (Identity Router) and Stage 5 (Storytelling). If empty, the app runs on its built-in rules engine.
+      </p>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Gemini API Key</label>
+          <input type="password" id="gemini-key-input" placeholder="AIzaSy..." style="width: 100%;">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button class="btn btn-secondary" onclick="app.closeSettings()">Cancel</button>
+        <button class="btn" onclick="app.saveSettings()">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificate View Modal -->
+  <div class="modal-overlay" id="certificate-modal">
+    <div class="modal-content glass-card" style="max-width: 600px; padding: 1rem;">
+      <button class="modal-close" onclick="app.closeCertificate()">×</button>
+      <div class="certificate-frame" id="certificate-print-area">
+        <span class="cert-stamp">🌳</span>
+        <div class="cert-title">GREEN EVENT CERTIFICATE</div>
+        <p>This is to certify that the event</p>
+        <h2 id="cert-event-name" style="font-family: 'Outfit'; color: #145a32; font-weight: 800; font-size: 1.6rem; margin: 0.5rem 0;">
+          Gaurav & Sneha's Wedding
+        </h2>
+        <p>has been conducted in compliance with civic sustainability guidelines.</p>
+        
+        <div style="display: flex; justify-content: center; gap: 2.5rem; margin: 1.5rem 0; font-size: 0.9rem;">
+          <div>
+            <span style="color: #666; display: block; font-size: 0.75rem; text-transform: uppercase;">Prakriti Score</span>
+            <strong style="font-size: 1.4rem; color: #145a32;" id="cert-score">81/100</strong>
+          </div>
+          <div>
+            <span style="color: #666; display: block; font-size: 0.75rem; text-transform: uppercase;">Emissions Saved</span>
+            <strong style="font-size: 1.4rem; color: #145a32;" id="cert-offset">450 kg CO₂e</strong>
+          </div>
+          <div>
+            <span style="color: #666; display: block; font-size: 0.75rem; text-transform: uppercase;">Prakriti Grade</span>
+            <strong style="font-size: 1.4rem; color: #145a32;" id="cert-grade">Gold Event</strong>
+          </div>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #555; font-style: italic; border-top: 1px solid #ddd; padding-top: 1rem;">
+          Prakriti Mitra Carbon Intelligence Platform • Digital Ledger Verified
+        </p>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn" onclick="window.print()">Print Certificate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- App JS modules -->
+  <script src="knowledge_engine.js"></script>
+  <script src="agents.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
