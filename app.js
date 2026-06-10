@@ -215,6 +215,11 @@ WHERE f.panchayat_id = 'GP-06';`,
     }
   }
 
+  startSurveyDirect(workflow) {
+    this.switchView('sandbox');
+    this.startSurvey(workflow);
+  }
+
   // Settings Management
   openSettings() {
     document.getElementById("settings-modal").classList.add("active");
@@ -791,8 +796,9 @@ WHERE f.panchayat_id = 'GP-06';`,
       ];
 
       ratings.forEach(r => {
-        const goldStars = "★".repeat(r.value);
-        const greyStars = "☆".repeat(5 - r.value);
+        const starCount = Math.max(0, Math.min(5, Math.round(r.value) || 0));
+        const goldStars = "★".repeat(starCount);
+        const greyStars = "☆".repeat(5 - starCount);
         starsList.innerHTML += `
           <div class="category-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
             <span>${r.name}</span>

@@ -239,7 +239,10 @@
         <!-- Score & Actions Column -->
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div class="glass-card score-card-gauge" style="position: relative;">
-            <h3 style="margin-bottom: 1rem;">🏠 Prakriti Family Score</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1rem;">
+              <h3 style="margin: 0; font-family: 'Outfit';">🏠 Prakriti Family Score</h3>
+              <button class="btn btn-secondary" onclick="app.startSurveyDirect('household')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Update Family Profile</button>
+            </div>
             
             <div style="position: relative; width: 200px; height: 200px;">
               <svg class="gauge-svg">
@@ -290,7 +293,10 @@
       <div class="dashboard-layout">
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div class="glass-card score-card-gauge" style="position: relative;">
-            <h3 id="event-report-title">💍 Wedding Sustainability Report</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1rem;">
+              <h3 id="event-report-title" style="margin: 0; font-family: 'Outfit';">💍 Wedding Sustainability Report</h3>
+              <button class="btn btn-secondary" onclick="app.startSurveyDirect('event')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Update Event Profile</button>
+            </div>
             
             <div style="position: relative; width: 200px; height: 200px; margin: 1rem 0;">
               <svg class="gauge-svg">
@@ -363,17 +369,20 @@
     <section id="view-children" class="view-section">
       <div class="dashboard-layout">
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <div class="glass-card" style="display: flex; align-items: center; gap: 1.5rem;">
-            <span style="font-size: 4.5rem; border-radius: 50%; background: rgba(255,255,255,0.05); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-lightgreen);">👧</span>
-            <div>
-              <span class="gauge-grade" style="color: var(--color-lightgreen); font-size: 0.8rem; font-weight: 800;">🌱 GREEN CHAMPION</span>
-              <h2 id="children-profile-name" style="font-size: 1.8rem; font-weight: 800; line-height: 1.1;">Ananya</h2>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Age: <span id="children-profile-age">11</span> | Rank: <span id="children-profile-rank">#4</span></p>
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
-                <span style="font-weight: bold; color: var(--color-lightgreen);" id="children-score-badge">92 pts</span>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">Level 3 Guardian</span>
+          <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+              <span style="font-size: 4.5rem; border-radius: 50%; background: rgba(255,255,255,0.05); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-lightgreen);">👧</span>
+              <div>
+                <span class="gauge-grade" style="color: var(--color-lightgreen); font-size: 0.8rem; font-weight: 800;">🌱 GREEN CHAMPION</span>
+                <h2 id="children-profile-name" style="font-size: 1.8rem; font-weight: 800; line-height: 1.1;">Ananya</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Age: <span id="children-profile-age">11</span> | Rank: <span id="children-profile-rank">#4</span></p>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                  <span style="font-weight: bold; color: var(--color-lightgreen);" id="children-score-badge">92 pts</span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">Level 3 Guardian</span>
+                </div>
               </div>
             </div>
+            <button class="btn btn-secondary" onclick="app.startSurveyDirect('children')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; height: fit-content;">Update Student Profile</button>
           </div>
 
           <div class="glass-card">
@@ -433,7 +442,10 @@
       <div class="dashboard-layout">
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div class="glass-card score-card-gauge">
-            <h3 id="village-report-title">🌾 Shankarpally Gram Dashboard</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1rem;">
+              <h3 id="village-report-title" style="margin: 0; font-family: 'Outfit';">🌾 Shankarpally Gram Dashboard</h3>
+              <button class="btn btn-secondary" onclick="app.startSurveyDirect('village')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Start Panchayat Survey</button>
+            </div>
             
             <div style="position: relative; width: 200px; height: 200px; margin: 1rem 0;">
               <svg class="gauge-svg">
