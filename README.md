@@ -4,6 +4,8 @@ Prakriti Mitra (*Friend of Nature*) is an AI-powered Sustainability Intelligence
 
 Built using a modular multi-agent pipeline architecture, it transforms natural language logs and satellite geospatial data into highly localized, inspiring, and actionable sustainability scoring dashboards.
 
+### 🌐 Live Demo: [Prakriti Mitra on Vercel](https://prakriti-mitra-qz8xgh6zo-bala-chandar-kumar-s-projects.vercel.app/)
+
 ---
 
 ## 🚀 Key Features
