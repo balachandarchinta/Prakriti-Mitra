@@ -367,6 +367,7 @@ WHERE f.panchayat_id = 'GP-06';`,
       household: "Electricity bill: 350 kWh. Petrol car daily travel is 25 kms. Vegetarian diet with 4 members.",
       event: "Wedding event. Guest size is 350 people for 2 days. 12 guests arriving by flight. Floral decoration.",
       children: "I rode my bicycle to school for 15 days, planted 3 trees, and always finish all food on my lunch plate.",
+      village: "Geospatial boundaries for Shankarpally Gram Panchayat GP-06 loaded. Analyzing collective rural community indicators, tree canopy density, water bodies, and village street scores for 1245 village families.",
       hindi: "मेरा बिजली का बिल 250 units है और हमने 5 पेड़ (trees) लगाए हैं।"
     };
     document.getElementById("router-text-input").value = textInputs[type] || "";
