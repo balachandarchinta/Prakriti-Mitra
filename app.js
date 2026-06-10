@@ -182,6 +182,11 @@ WHERE f.panchayat_id = 'GP-06';`,
       document.getElementById("gemini-key-input").value = savedKey;
       this.apiKey = savedKey;
     }
+
+    // Auto-play / show launch film when the page opens
+    setTimeout(() => {
+      this.playLaunchFilm();
+    }, 300);
   }
 
   // Initialize Landing view indicators
@@ -1004,137 +1009,26 @@ Keep your replies concise, inspiring, and direct.`;
   playLaunchFilm() {
     const introCard = document.getElementById("video-banner-intro");
     const playerOverlay = document.getElementById("cinema-player");
+    const video = document.getElementById("cinema-video");
     
     introCard.style.display = "none";
-    playerOverlay.style.display = "flex";
-
-    this.cinemaTimer = 0;
-    this.cinemaPlaying = true;
-    
-    // Web Audio API context for synthetic cinematic audio beats
-    this.audioContext = null;
-    try {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {
-      console.warn("Web Audio not supported in this browser context.");
+    playerOverlay.style.display = "block";
+    if (video) {
+      video.play().catch(err => console.log("Autoplay blocked: ", err));
     }
-
-    const scenes = [
-      { start: 0, end: 7, visual: "Sunrise over Indian valleys, step-farms and rivers", camera: "Drone overhead fly-over rising over banyan ridge", audio: "Cello chord humming, birds chirping", subtitle: "Nature has always shared its rhythm with us. Silent. Balanced. Perfect." },
-      { start: 7, end: 15, visual: "Grandfather & child watering gardens. Student cycling to school", camera: "Tracking medium shot alongside cycle path", audio: "Warm acoustic guitar strumming enters", subtitle: "But as our world moves faster, the footprints we leave behind fade from our sight." },
-      { start: 15, end: 22, visual: "Wedding celebrations, lighting strings, laughing guests", camera: "Jib shot descending banyan tree into family courtyard", audio: "Traditional shehnai and soft clapping", subtitle: "In every celebration we hold, in every choice we make..." },
-      { start: 22, end: 32, visual: "Subtle green grid overlays: Diesel Generator (15%), Waste (25%), Petrol Car (42%)", camera: "Macro zoom-ins on utility nodes and engine pipes", audio: "Synth scanning chime sweeps", subtitle: "...there lies an invisible impact. Carbon. Waste. Energy. Water. Hidden from our eyes. Until now." },
-      { start: 32, end: 42, visual: "Citizen opens Prakriti App. Holographic dials hover: Family Score: 78", camera: "Steadicam orbit around smartphone projection", audio: "Emerald harmonic major chord hum", subtitle: "Introducing Prakriti Mitra. An AI-powered intelligence platform that makes sustainability visible." },
-      { start: 42, end: 50, visual: "Monographs of scores: Event Score 65, Student 92, Village Rank #4", camera: "Rapid match cuts of glowing green badge ranks", audio: "Satisfying badge unlock chimes", subtitle: "From families to events, school children to entire villages—we track, score, and guide our communities to heal the earth." },
-      { start: 50, end: 55, visual: "Time-lapse: Dry pond refills. Solar streetlighting panels ignite", camera: "Time-lapse panning, morphing dry spots into canopy forests", audio: "Full orchestra strings swelling, French horn rise", subtitle: "Together, we turn metrics into forests, conservation into titles, and scores into a living heritage." },
-      { start: 55, end: 60, visual: "Indian girl presses soil around a tree sapling under golden rays", camera: "Slow pullback revealing vast lush village topography", audio: "Warm guitar strum ringing out, forest ambience", subtitle: "PRAKRITI MITRA. Friend of Nature. Guide for Sustainable Living.", isFinal: true }
-    ];
-
-    const visualHint = document.getElementById("cinema-visual-hint");
-    const cameraHint = document.getElementById("cinema-camera-hint");
-    const subtitles = document.getElementById("cinema-subtitles");
-    const timeText = document.getElementById("cinema-time");
-    const progress = document.getElementById("cinema-progress");
-    const audioHint = document.getElementById("cinema-audio-hint");
-    const bgVisual = document.getElementById("cinema-bg");
-
-    // Clear any existing interval
-    if (this.cinemaInterval) clearInterval(this.cinemaInterval);
-
-    // Audio synthesizer helper to play simple harmonic wave notes
-    const playTone = (freq, type, duration) => {
-      if (!this.audioContext) return;
-      try {
-        const osc = this.audioContext.createOscillator();
-        const gain = this.audioContext.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
-        gain.gain.setValueAtTime(0.05, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(this.audioContext.destination);
-        osc.start();
-        osc.stop(this.audioContext.currentTime + duration);
-      } catch(e) {}
-    };
-
-    const updateFrame = () => {
-      const sec = this.cinemaTimer;
-      if (sec > 60) {
-        this.stopLaunchFilm();
-        return;
-      }
-
-      // Format time
-      const mins = Math.floor(sec / 60);
-      const secs = sec % 60;
-      timeText.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-      progress.style.width = `${(sec / 60) * 100}%`;
-
-      // Find current active scene
-      const activeScene = scenes.find(s => sec >= s.start && sec < s.end) || scenes[scenes.length - 1];
-
-      visualHint.textContent = activeScene.visual;
-      cameraHint.textContent = activeScene.camera;
-      subtitles.textContent = activeScene.subtitle;
-      audioHint.textContent = activeScene.audio;
-
-      // Update background visual
-      if (activeScene.isFinal) {
-        bgVisual.style.backgroundImage = "url('prakriti_launch_film.png')";
-        bgVisual.style.opacity = "0.55";
-      } else {
-        bgVisual.style.backgroundImage = "none";
-        bgVisual.style.opacity = "0.25";
-      }
-
-      // Sound triggers on scene transitions
-      if (sec === 0) {
-        playTone(110, "sawtooth", 1.5); // Deep cello A2 chord
-        playTone(165, "sawtooth", 1.5); // E3 fifth
-      } else if (sec === 7) {
-        playTone(220, "sine", 1.0);     // Acoustic guitar root A3
-        playTone(275, "sine", 1.0);     // C#4 major third
-      } else if (sec === 15) {
-        playTone(330, "sine", 0.5);     // Shehnai-like chime
-      } else if (sec === 22) {
-        playTone(880, "triangle", 0.3); // High scanning beep
-        playTone(1760, "triangle", 0.3);
-      } else if (sec === 32) {
-        playTone(440, "sine", 1.5);     // Positive chord ring
-        playTone(554, "sine", 1.5);
-        playTone(659, "sine", 1.5);
-      } else if (sec === 42) {
-        playTone(880, "sine", 0.15);    // Unlock chime 1
-        setTimeout(() => playTone(1046, "sine", 0.15), 120); // Unlock chime 2
-      } else if (sec === 50) {
-        playTone(330, "sawtooth", 2.0); // Majestic major lift
-        playTone(392, "sawtooth", 2.0);
-        playTone(523, "sawtooth", 2.0);
-      } else if (sec === 55) {
-        playTone(220, "sine", 3.0);     // Warm final strum ringing out
-        playTone(440, "sine", 3.0);
-      }
-
-      this.cinemaTimer++;
-    };
-
-    // Run first frame immediately
-    updateFrame();
-    this.cinemaInterval = setInterval(updateFrame, 1000);
   }
 
   stopLaunchFilm() {
-    this.cinemaPlaying = false;
-    if (this.cinemaInterval) clearInterval(this.cinemaInterval);
-    if (this.audioContext) {
-      try {
-        this.audioContext.close();
-      } catch(e) {}
-    }
+    const introCard = document.getElementById("video-banner-intro");
+    const playerOverlay = document.getElementById("cinema-player");
+    const video = document.getElementById("cinema-video");
     
-    document.getElementById("cinema-player").style.display = "none";
-    document.getElementById("video-banner-intro").style.display = "block";
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+    playerOverlay.style.display = "none";
+    introCard.style.display = "block";
   }
 }
 
