@@ -1,3 +1,15 @@
+// XSS Sanitizer Helper
+const escapeHTML = (str) => {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+window.escapeHTML = escapeHTML;
+
 /**
  * Prakriti Mitra - Main Coordinator Application Script
  */
@@ -304,13 +316,13 @@ WHERE f.panchayat_id = 'GP-06';`,
 
     setTimeout(() => {
       consoleBody.innerHTML += `
-        <div class="sql-code">${plot.postgis_query}</div>
+        <div class="sql-code">${escapeHTML(plot.postgis_query)}</div>
         <div style="color: #666;">-- Running geometry intersection...</div>
       `;
       
       setTimeout(() => {
         consoleBody.innerHTML += `
-          <div class="sql-output"><pre>${plot.postgis_output}</pre></div>
+          <div class="sql-output"><pre>${escapeHTML(plot.postgis_output)}</pre></div>
           <div style="color: var(--color-lightgreen);">✔ Spatial data resolved. Automatic survey template selected.</div>
         `;
         
@@ -357,7 +369,7 @@ WHERE f.panchayat_id = 'GP-06';`,
 
     const consoleBody = document.getElementById("sql-console-body");
     consoleBody.innerHTML += `
-      <div style="color: #666;">-- Switched Sentinel Band View: ${layerName.toUpperCase()}</div>
+      <div style="color: #666;">-- Switched Sentinel Band View: ${escapeHTML(layerName.toUpperCase())}</div>
     `;
   }
 
@@ -398,7 +410,7 @@ WHERE f.panchayat_id = 'GP-06';`,
             <span>[Stage 0] Identity Router Agent: Geospatial Resolve</span>
             <span>1.0 cert</span>
           </div>
-          <div class="log-details" style="display: block;">${JSON.stringify(routeResult, null, 2)}</div>
+          <div class="log-details" style="display: block;">${escapeHTML(JSON.stringify(routeResult, null, 2))}</div>
         </div>
       `;
     } else {
@@ -408,9 +420,9 @@ WHERE f.panchayat_id = 'GP-06';`,
         <div class="log-entry">
           <div class="log-title" onclick="app.toggleLogDetails(this)">
             <span>[Stage 0] Identity Router Agent: Successful</span>
-            <span>${routeResult.confidence_score} cert</span>
+            <span>${escapeHTML(routeResult.confidence_score)} cert</span>
           </div>
-          <div class="log-details" style="display: block;">${JSON.stringify(routeResult, null, 2)}</div>
+          <div class="log-details" style="display: block;">${escapeHTML(JSON.stringify(routeResult, null, 2))}</div>
         </div>
       `;
     }
@@ -473,23 +485,24 @@ WHERE f.panchayat_id = 'GP-06';`,
     const prefillVal = this.surveyResponses[q.key] !== undefined ? this.surveyResponses[q.key] : q.default;
 
     let inputHtml = "";
+    const escapedText = escapeHTML(q.text);
     if (q.type === "number") {
-      inputHtml = `<input type="number" id="survey-ans" min="${q.min || 0}" max="${q.max || 99999}" value="${prefillVal}">`;
+      inputHtml = `<input type="number" id="survey-ans" aria-label="${escapedText}" min="${q.min || 0}" max="${q.max || 99999}" value="${escapeHTML(prefillVal)}">`;
     } else if (q.type === "select") {
-      const opts = q.options.map(opt => `<option value="${opt}" ${opt === prefillVal ? 'selected' : ''}>${opt}</option>`).join("");
-      inputHtml = `<select id="survey-ans">${opts}</select>`;
+      const opts = q.options.map(opt => `<option value="${escapeHTML(opt)}" ${opt === prefillVal ? 'selected' : ''}>${escapeHTML(opt)}</option>`).join("");
+      inputHtml = `<select id="survey-ans" aria-label="${escapedText}">${opts}</select>`;
     } else if (q.type === "range") {
       inputHtml = `
-        <input type="range" id="survey-ans" min="${q.min}" max="${q.max}" step="${q.step}" value="${prefillVal}" oninput="document.getElementById('range-val').innerText = this.value">
-        <div class="slider-val"><span id="range-val">${prefillVal}</span></div>
+        <input type="range" id="survey-ans" aria-label="${escapedText}" min="${q.min}" max="${q.max}" step="${q.step}" value="${escapeHTML(prefillVal)}" oninput="document.getElementById('range-val').innerText = this.value">
+        <div class="slider-val"><span id="range-val">${escapeHTML(prefillVal)}</span></div>
       `;
     } else {
-      inputHtml = `<input type="text" id="survey-ans" value="${prefillVal}">`;
+      inputHtml = `<input type="text" id="survey-ans" aria-label="${escapedText}" value="${escapeHTML(prefillVal)}">`;
     }
 
     wrapper.innerHTML = `
       <div class="survey-question-card active">
-        <div class="survey-question-text">${q.text}</div>
+        <div class="survey-question-text">${escapedText}</div>
         <div class="survey-input-wrapper">${inputHtml}</div>
       </div>
     `;
@@ -552,7 +565,7 @@ WHERE f.panchayat_id = 'GP-06';`,
     const result = await window.executeAgentPipeline(rawInputText, this.surveyResponses, this.apiKey, this.currentSurveyWorkflow);
 
     if (!result.success) {
-      logsContainer.innerHTML += `<div style="color: var(--color-red); padding-top:0.5rem;">Pipeline Failed: ${result.error}</div>`;
+      logsContainer.innerHTML += `<div style="color: var(--color-red); padding-top:0.5rem;">Pipeline Failed: ${escapeHTML(result.error)}</div>`;
       return;
     }
 
@@ -562,10 +575,10 @@ WHERE f.panchayat_id = 'GP-06';`,
       logsContainer.innerHTML += `
         <div class="log-entry">
           <div class="log-title" onclick="app.toggleLogDetails(this)">
-            <span>✔ ${log.stage}</span>
+            <span>✔ ${escapeHTML(log.stage)}</span>
             <span>Logs</span>
           </div>
-          <div class="log-details">${JSON.stringify(log.data || log.message, null, 2)}</div>
+          <div class="log-details">${escapeHTML(JSON.stringify(log.data || log.message, null, 2))}</div>
         </div>
       `;
     });
@@ -628,8 +641,8 @@ WHERE f.panchayat_id = 'GP-06';`,
         catsList.innerHTML += `
           <div class="category-item">
             <div class="category-header">
-              <span class="category-name">${c.icon} ${c.name}</span>
-              <span class="category-value">${c.val} ${c.unit}</span>
+              <span class="category-name">${escapeHTML(c.icon)} ${escapeHTML(c.name)}</span>
+              <span class="category-value">${escapeHTML(c.val)} ${escapeHTML(c.unit)}</span>
             </div>
             <div class="category-bar-outer">
               <div class="category-bar-inner" style="width: ${pct}%; background: ${barColor};"></div>
@@ -653,10 +666,10 @@ WHERE f.panchayat_id = 'GP-06';`,
         recsList.innerHTML += `
           <div class="challenge-item">
             <div class="challenge-info">
-              <div class="challenge-title">+${r.points} points: ${r.action}</div>
-              <div class="challenge-desc">${r.desc} | Cost: ${r.cost}</div>
+              <div class="challenge-title">+${escapeHTML(r.points)} points: ${escapeHTML(r.action)}</div>
+              <div class="challenge-desc">${escapeHTML(r.desc)} | Cost: ${escapeHTML(r.cost)}</div>
             </div>
-            <button class="challenge-check-btn" onclick="app.toggleFamilyRecommendation(this, ${r.points})">✓</button>
+            <button class="challenge-check-btn" aria-label="Mark recommendation ${escapeHTML(r.action)} as complete" onclick="app.toggleFamilyRecommendation(this, ${r.points})">✓</button>
           </div>
         `;
       });
@@ -696,7 +709,7 @@ WHERE f.panchayat_id = 'GP-06';`,
         catsList.innerHTML += `
           <div class="category-item">
             <div class="category-header">
-              <span class="category-name">${c.icon} ${c.name}</span>
+              <span class="category-name">${escapeHTML(c.icon)} ${escapeHTML(c.name)}</span>
               <span class="category-value">${pct}%</span>
             </div>
             <div class="category-bar-outer">
@@ -712,8 +725,8 @@ WHERE f.panchayat_id = 'GP-06';`,
       data.recommendations.forEach(r => {
         savingsList.innerHTML += `
           <div style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">
-            <strong style="color: var(--color-lightgreen);">${r.action}</strong>
-            <p>${r.desc}</p>
+            <strong style="color: var(--color-lightgreen);">${escapeHTML(r.action)}</strong>
+            <p>${escapeHTML(r.desc)}</p>
           </div>
         `;
       });
@@ -750,9 +763,9 @@ WHERE f.panchayat_id = 'GP-06';`,
       allPossibleBadges.forEach(pb => {
         const isUnlocked = data.gamification.badges.some(b => b.id === pb.id);
         grid.innerHTML += `
-          <div class="badge-item ${isUnlocked ? '' : 'locked'}" title="${pb.desc}">
-            <div class="badge-icon-wrap">${pb.icon}</div>
-            <div class="badge-name">${pb.name}</div>
+          <div class="badge-item ${isUnlocked ? '' : 'locked'}" title="${escapeHTML(pb.desc)}" role="img" aria-label="${escapeHTML(pb.name)}: ${escapeHTML(pb.desc)} (${isUnlocked ? 'Unlocked' : 'Locked'})">
+            <div class="badge-icon-wrap" aria-hidden="true">${escapeHTML(pb.icon)}</div>
+            <div class="badge-name">${escapeHTML(pb.name)}</div>
           </div>
         `;
       });
@@ -764,10 +777,10 @@ WHERE f.panchayat_id = 'GP-06';`,
         challengesList.innerHTML += `
           <div class="challenge-item">
             <div class="challenge-info">
-              <div class="challenge-title">${ch.title} <span class="challenge-xp">+${ch.xp} XP</span></div>
-              <div class="challenge-desc">${ch.desc}</div>
+              <div class="challenge-title">${escapeHTML(ch.title)} <span class="challenge-xp">+${escapeHTML(ch.xp)} XP</span></div>
+              <div class="challenge-desc">${escapeHTML(ch.desc)}</div>
             </div>
-            <button class="challenge-check-btn" onclick="app.toggleChallenge(this)">✓</button>
+            <button class="challenge-check-btn" aria-label="Mark challenge ${escapeHTML(ch.title)} as complete" onclick="app.toggleChallenge(this)">✓</button>
           </div>
         `;
       });
@@ -801,9 +814,9 @@ WHERE f.panchayat_id = 'GP-06';`,
         const goldStars = "★".repeat(starCount);
         const greyStars = "☆".repeat(5 - starCount);
         starsList.innerHTML += `
-          <div class="category-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
-            <span>${r.name}</span>
-            <span style="color: var(--color-yellow); font-size: 1.1rem;">${goldStars}${greyStars}</span>
+          <div class="category-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem;" role="img" aria-label="${escapeHTML(r.name)}: ${starCount} out of 5 stars">
+            <span>${escapeHTML(r.name)}</span>
+            <span style="color: var(--color-yellow); font-size: 1.1rem;" aria-hidden="true">${goldStars}${greyStars}</span>
           </div>
         `;
       });
@@ -814,10 +827,10 @@ WHERE f.panchayat_id = 'GP-06';`,
       data.recommendations.forEach(r => {
         recsList.innerHTML += `
           <div class="rec-item">
-            <span class="rec-check">✓</span>
+            <span class="rec-check" aria-hidden="true">✓</span>
             <div>
-              <strong>${r.action}</strong>
-              <p style="font-size: 0.8rem; color: var(--text-muted);">${r.desc}</p>
+              <strong>${escapeHTML(r.action)}</strong>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(r.desc)}</p>
             </div>
           </div>
         `;
@@ -880,7 +893,7 @@ WHERE f.panchayat_id = 'GP-06';`,
       
       svgPaths += `
         <path d="M 100 100 L ${x1} ${y1} A 70 70 0 ${largeArc} 1 ${x2} ${y2} Z" 
-              fill="${s.color}" 
+              fill="${escapeHTML(s.color)}" 
               stroke="#040d07" 
               stroke-width="1.5" />
       `;
@@ -897,16 +910,16 @@ WHERE f.panchayat_id = 'GP-06';`,
       const pctVal = Math.round((s.val / totalVal) * 100);
       legendHtml += `
         <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
-          <span style="width: 12px; height: 12px; border-radius: 50%; background: ${s.color}; display: inline-block;"></span>
-          <span style="color: var(--text-muted);">${s.label}:</span>
-          <strong>${pctVal}%</strong>
+          <span style="width: 12px; height: 12px; border-radius: 50%; background: ${escapeHTML(s.color)}; display: inline-block;"></span>
+          <span style="color: var(--text-muted);">${escapeHTML(s.label)}:</span>
+          <strong>${escapeHTML(pctVal)}%</strong>
         </div>
       `;
     });
     legendHtml += `</div>`;
 
     container.innerHTML = `
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: center; height: 100%;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: center; height: 100%;" role="img" aria-label="Carbon emission source breakdown chart">
         <svg viewBox="0 0 200 200" style="width: 100%; max-height: 200px;">
           ${svgPaths}
         </svg>

@@ -7,7 +7,7 @@
 async function runGeminiAPI(apiKey, systemInstruction, userPrompt, isJson = false) {
   try {
     const model = "gemini-1.5-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     
     const requestBody = {
       contents: [{ role: "user", parts: [{ text: userPrompt }] }],
@@ -21,7 +21,10 @@ async function runGeminiAPI(apiKey, systemInstruction, userPrompt, isJson = fals
 
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
       body: JSON.stringify(requestBody)
     });
 

@@ -1,0 +1,9 @@
+{
+  "name": "prakriti-mitra",
+  "version": "1.0.0",
+  "description": "Prakriti Mitra Carbon Intelligence Platform",
+  "scripts": {
+    "test": "node --test test.js"
+  },
+  "dependencies": {}
+}
