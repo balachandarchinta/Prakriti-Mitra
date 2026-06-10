@@ -486,18 +486,20 @@ WHERE f.panchayat_id = 'GP-06';`,
 
     let inputHtml = "";
     const escapedText = escapeHTML(q.text);
+    const labelHtml = `<label for="survey-ans" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">${escapedText}</label>`;
     if (q.type === "number") {
-      inputHtml = `<input type="number" id="survey-ans" aria-label="${escapedText}" min="${q.min || 0}" max="${q.max || 99999}" value="${escapeHTML(prefillVal)}">`;
+      inputHtml = `${labelHtml}<input type="number" id="survey-ans" aria-label="${escapedText}" min="${q.min || 0}" max="${q.max || 99999}" value="${escapeHTML(prefillVal)}">`;
     } else if (q.type === "select") {
       const opts = q.options.map(opt => `<option value="${escapeHTML(opt)}" ${opt === prefillVal ? 'selected' : ''}>${escapeHTML(opt)}</option>`).join("");
-      inputHtml = `<select id="survey-ans" aria-label="${escapedText}">${opts}</select>`;
+      inputHtml = `${labelHtml}<select id="survey-ans" aria-label="${escapedText}">${opts}</select>`;
     } else if (q.type === "range") {
       inputHtml = `
+        ${labelHtml}
         <input type="range" id="survey-ans" aria-label="${escapedText}" min="${q.min}" max="${q.max}" step="${q.step}" value="${escapeHTML(prefillVal)}" oninput="document.getElementById('range-val').innerText = this.value">
         <div class="slider-val"><span id="range-val">${escapeHTML(prefillVal)}</span></div>
       `;
     } else {
-      inputHtml = `<input type="text" id="survey-ans" aria-label="${escapedText}" value="${escapeHTML(prefillVal)}">`;
+      inputHtml = `${labelHtml}<input type="text" id="survey-ans" aria-label="${escapedText}" value="${escapeHTML(prefillVal)}">`;
     }
 
     wrapper.innerHTML = `
