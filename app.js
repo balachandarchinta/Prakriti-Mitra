@@ -311,11 +311,11 @@ WHERE f.panchayat_id = 'GP-06';`,
         } else if (plot.type === "event") {
           textInput = `Geospatial plot ${plot.name} analyzed. Guest count is ${plot.metrics.guests} people, average transport is ${plot.metrics.travel_avg_km} km.`;
         } else if (plot.type === "village") {
-          textInput = `Geospatial boundaries for Shankarpally PanchayatGP-06 loaded. Active families: ${plot.metrics.families} families.`;
+          textInput = `Geospatial boundaries for Shankarpally Gram Panchayat GP-06 loaded. Analyzing collective rural community indicators, tree canopy density, water bodies, and village street scores for 1245 village families.`;
         }
 
         document.getElementById("router-text-input").value = textInput;
-        this.runRoutingStage(plot.metrics);
+        this.runRoutingStage(plot.metrics, plot.type);
       }, 800);
     }, 500);
   }
@@ -363,9 +363,9 @@ WHERE f.panchayat_id = 'GP-06';`,
   }
 
   // STAGE 0: EXECUTE LLM ROUTING
-  async runRoutingStage(geospatialPreseeds = {}) {
+  async runRoutingStage(geospatialPreseeds = {}, forceWorkflow = null) {
     const textInput = document.getElementById("router-text-input").value.trim();
-    if (!textInput) {
+    if (!textInput && !forceWorkflow) {
       alert("Please enter utility data or select a satellite plot coordinates boundary.");
       return;
     }
@@ -373,18 +373,36 @@ WHERE f.panchayat_id = 'GP-06';`,
     const logsContainer = document.getElementById("pipeline-trace-logs");
     logsContainer.innerHTML = `<div style="color: #666;">Stage 0: Initiating Carbon Identity Routing Agent...</div>`;
 
-    const router = new RouterAgent(this.apiKey);
-    const routeResult = await router.run(textInput);
-
-    logsContainer.innerHTML = `
-      <div class="log-entry">
-        <div class="log-title" onclick="app.toggleLogDetails(this)">
-          <span>[Stage 0] Identity Router Agent: Successful</span>
-          <span>${routeResult.confidence_score} cert</span>
+    let routeResult;
+    if (forceWorkflow) {
+      routeResult = {
+        workflow: forceWorkflow,
+        confidence_score: 1.0,
+        extracted_metrics: geospatialPreseeds,
+        detected_language: "en"
+      };
+      logsContainer.innerHTML = `
+        <div class="log-entry">
+          <div class="log-title" onclick="app.toggleLogDetails(this)">
+            <span>[Stage 0] Identity Router Agent: Geospatial Resolve</span>
+            <span>1.0 cert</span>
+          </div>
+          <div class="log-details" style="display: block;">${JSON.stringify(routeResult, null, 2)}</div>
         </div>
-        <div class="log-details" style="display: block;">${JSON.stringify(routeResult, null, 2)}</div>
-      </div>
-    `;
+      `;
+    } else {
+      const router = new RouterAgent(this.apiKey);
+      routeResult = await router.run(textInput);
+      logsContainer.innerHTML = `
+        <div class="log-entry">
+          <div class="log-title" onclick="app.toggleLogDetails(this)">
+            <span>[Stage 0] Identity Router Agent: Successful</span>
+            <span>${routeResult.confidence_score} cert</span>
+          </div>
+          <div class="log-details" style="display: block;">${JSON.stringify(routeResult, null, 2)}</div>
+        </div>
+      `;
+    }
 
     if (routeResult.workflow === "unsupported") {
       logsContainer.innerHTML += `<div style="color: var(--color-red); padding-top: 0.5rem;">Error: Router classified input as Unsupported.</div>`;
@@ -752,8 +770,8 @@ WHERE f.panchayat_id = 'GP-06';`,
       gaugeFill.style.strokeDashoffset = 565 - (565 * data.score) / 100;
       gaugeFill.style.stroke = data.grade_info.accentColor;
 
-      document.getElementById("village-stat-assessed").textContent = inputs.families.toLocaleString();
-      document.getElementById("village-stat-green").textContent = inputs.green_families.toLocaleString();
+      document.getElementById("village-stat-assessed").textContent = (inputs.families || 0).toLocaleString();
+      document.getElementById("village-stat-green").textContent = (inputs.green_families || 0).toLocaleString();
 
       document.getElementById("village-story-text").textContent = data.story;
 

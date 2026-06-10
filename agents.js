@@ -465,7 +465,11 @@ class SustainabilityAgent {
       const greenFamilies = parseFloat(survey_responses.green_families || 500);
 
       // Extract star ratings
-      const parseStars = (str) => parseInt(str.split(" ")[0]) || 3;
+      const parseStars = (str) => {
+        if (!str) return 3;
+        if (typeof str === 'number') return str;
+        return parseInt(String(str).split(" ")[0]) || 3;
+      };
       const waterStars = parseStars(survey_responses.water_rating);
       const wasteStars = parseStars(survey_responses.waste_rating);
       const treeStars = parseStars(survey_responses.tree_rating);
